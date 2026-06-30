@@ -1,0 +1,176 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  function saveTemp(payload) {
+    try {
+      localStorage.setItem("nsatitsi_temp_user", JSON.stringify(payload));
+    } catch {
+      // ignore
+    }
+  }
+
+  const handleCreate = (e) => {
+    e.preventDefault();
+    setError("");
+    if (!name || !email || !password) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    setLoading(true);
+    const payload = { name, email, password, provider: "local" };
+    saveTemp(payload);
+    // simulate server delay
+    setTimeout(() => {
+      setLoading(false);
+      router.push("/register/personal");
+    }, 650);
+  };
+
+  const handleSocial = (provider) => {
+    // mock social signup: set an email/name and continue to personal step
+    const payload = { name: provider === "google" ? "Google User" : "GitHub User", email: `${provider}@example.com`, provider };
+    saveTemp(payload);
+    router.push("/register/personal");
+  };
+
+  return (
+    <div className="login-root">
+      <aside className="brand-panel">
+        <div className="brand-inner">
+          <div className="brand-badge">Academic Resource Sharing Platform</div>
+          <h1 className="brand-headline">
+            Share.<br />Learn.<br />Grow.
+          </h1>
+          <p className="brand-sub">
+            Access thousands of academic resources shared by students and educators across Malawi and beyond.
+          </p>
+        </div>
+        <div className="brand-video-wrap">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="brand-video"
+          >
+            <source src="/background-video.mp4" type="video/mp4" />
+          </video>
+          <div className="brand-video-overlay" />
+        </div>
+      </aside>
+
+      <main className="form-panel">
+        <div className="form-container">
+          <div className="logo-wrap">
+            <div className="brand-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 10L12 5L2 10L12 15L22 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 12V17C6 17 9 19 12 19C15 19 18 17 18 17V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div className="form-header">
+            <h2 className="form-title">Create your account</h2>
+            <p className="form-subtitle">Join thousands of students accessing free materials</p>
+          </div>
+
+          <form onSubmit={handleCreate} noValidate>
+            {error && <div className="error-banner" role="alert">{error}</div>}
+
+            <div className="social-row" style={{ marginBottom: 12 }}>
+              <button type="button" className="social-btn" onClick={() => handleSocial("google")}>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                <span>Google</span>
+              </button>
+              <button type="button" className="social-btn" onClick={() => handleSocial("github")}>
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+                </svg>
+                <span>GitHub</span>
+              </button>
+            </div>
+
+            <div className="divider"><span>or with email</span></div>
+
+            <div className="field">
+              <label className="field-label">Full Name</label>
+              <input className="field-input" placeholder="Your full name" value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+
+            <div className="field">
+              <label className="field-label">Email Address</label>
+              <input className="field-input" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+
+            <div className="field">
+              <label className="field-label">Password</label>
+              <input className="field-input" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={loading}>{loading ? "Creating…" : "Create Account"}</button>
+          </form>
+
+          <p style={{ textAlign: "center", marginTop: 12 }}>Already have an account? <a href="/login" className="signup-link">Sign in</a></p>
+        </div>
+      </main>
+
+      <style>{`
+        /* reuse a subset of styles from login page */
+        *{box-sizing:border-box}
+        .login-root{display:flex;min-height:100vh;font-family:'Inter',system-ui,-apple-system,sans-serif;background:#f5f6f7}
+        .brand-panel{position:relative;display:flex;align-items:center;justify-content:center;width:42%;background:linear-gradient(155deg,#1B4D2E 0%,#0f2d1a 100%);overflow:hidden;padding:3rem 3.5rem}
+        .brand-inner{position:relative;z-index:2;color:#fff;max-width:340px}
+        .brand-badge{display:inline-block;font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:0.3rem 0.85rem;margin-bottom:2rem}
+        .brand-headline{font-family:'Georgia','Times New Roman',serif;font-size:clamp(2.4rem,3.5vw,3.2rem);font-weight:700;line-height:1.1;margin-bottom:1.25rem;letter-spacing:-0.01em}
+        .brand-sub{font-size:0.95rem;line-height:1.65;color:rgba(255,255,255,0.72);margin-bottom:2.5rem}
+        .brand-video-wrap{position:absolute;inset:0;z-index:1;pointer-events:none}
+        .brand-video{width:100%;height:100%;object-fit:cover}
+        .brand-video-overlay{position:absolute;inset:0;background:linear-gradient(155deg,rgba(27,77,46,0.85) 0%,rgba(15,45,26,0.9) 100%)}
+        .form-panel{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5rem 1.5rem;background:#f5f6f7;overflow-y:auto}
+        .form-container{width:100%;max-width:420px;background:#fff;border-radius:16px;padding:2.75rem 2.5rem 2.25rem;box-shadow:0 4px 24px rgba(0,0,0,0.07),0 1px 4px rgba(0,0,0,0.04)}
+        .logo-wrap{display:flex;justify-content:center;margin-bottom:0.75rem}
+        .brand-icon{display:flex;align-items:center;justify-content:center;width:64px;height:64px;background:#1B4D2E;color:#fff;border-radius:16px;box-shadow:0 4px 12px rgba(27,77,46,0.2)}
+        .brand-icon svg{width:32px;height:32px}
+        .form-header{text-align:center;margin-bottom:1.75rem}
+        .form-title{font-family:'Georgia',serif;font-size:1.6rem;font-weight:700;color:#0f1a12;margin-bottom:0.35rem}
+        .form-subtitle{font-size:0.88rem;color:#6b7280}
+        .field{margin-bottom:1.1rem}
+        .field-label{display:block;font-size:0.82rem;font-weight:600;color:#374151;margin-bottom:0.45rem;letter-spacing:0.01em}
+        .field-input{width:100%;height:44px;padding:0 2.65rem 0 12px;font-size:0.9rem;color:#111827;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:9px;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+        .field-input::placeholder{color:#b0b8c4}
+        .field-input:focus{border-color:#1B4D2E;box-shadow:0 0 0 3px rgba(27,77,46,0.1);background:#fff}
+        .submit-btn{width:100%;height:46px;background:#1B4D2E;color:#fff;font-size:0.93rem;font-weight:600;letter-spacing:0.02em;border:none;border-radius:9px;cursor:pointer;transition:background 0.15s,transform 0.1s,box-shadow 0.15s;box-shadow:0 2px 8px rgba(27,77,46,0.25)}
+        .submit-btn:hover:not(:disabled){background:#163d24;box-shadow:0 4px 16px rgba(27,77,46,0.3)}
+        .submit-btn:active:not(:disabled){transform:translateY(1px)}
+        .submit-btn:disabled{opacity:0.7;cursor:not-allowed}
+        .social-row{display:flex;gap:0.75rem}
+        .social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:0.5rem;height:42px;background:#fff;border:1.5px solid #e5e7eb;border-radius:9px;font-size:0.85rem;font-weight:500;color:#374151;cursor:pointer;transition:border-color 0.15s,background 0.15s}
+        .social-btn svg{width:18px;height:18px;flex-shrink:0}
+        .social-btn:hover{background:#f9fafb;border-color:#d1d5db}
+        .divider{display:flex;align-items:center;gap:0.75rem;margin:1.4rem 0 1.1rem;font-size:0.78rem;color:#9ca3af}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:#e5e7eb}
+        .error-banner{background:#fff1f2;border:1px solid #fecaca;color:#b91c1c;padding:8px;border-radius:8px;margin-bottom:12px}
+        .signup-link{color:#1B4D2E;font-weight:600}
+        @media (max-width:900px){.brand-panel{display:none}.form-panel{background:#fff;padding:1.5rem 1rem}.form-container{box-shadow:none;padding:1.5rem 0;max-width:400px;backdrop-filter:none;background:#fff}}
+        @media (max-width:480px){.social-row{flex-direction:row;justify-content:center;gap:0.6rem}.social-btn{flex:0 0 auto;width:44px;height:44px;padding:0;font-size:0}.social-btn span{display:none}.social-btn svg{width:20px;height:20px}}
+      `}</style>
+    </div>
+  );
+}
+
