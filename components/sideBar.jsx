@@ -20,9 +20,15 @@ export default function Sidebar({
             return item.title === activeTitle;
         }
 
+        if (pathname === item.href) return true;
+
+        // If item.href is a base path (like /admin or /student), don't allow partial matches
+        // unless they are explicitly marked as active via activeTitle
+        const isBaseRoute = item.href === '/admin' || item.href === '/student';
+        if (isBaseRoute) return pathname === item.href;
+
         return (
-            pathname === item.href ||
-            (item.href !== '/' && pathname.startsWith(item.href + '/'))
+            item.href !== '/' && pathname.startsWith(item.href + '/')
         );
     };
 

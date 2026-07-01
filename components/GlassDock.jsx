@@ -14,9 +14,12 @@ export default function GlassDock({ items = [] }) {
             <ul className="flex items-center justify-around">
                 {items.map((item) => {
                     const Icon = item.icon;
-                    const isActive =
-                        pathname === item.href ||
-                        (item.href !== '/' && pathname.startsWith(item.href + '/'));
+                    const isActive = (() => {
+                        if (pathname === item.href) return true;
+                        const isBaseRoute = item.href === '/admin' || item.href === '/student';
+                        if (isBaseRoute) return pathname === item.href;
+                        return item.href !== '/' && pathname.startsWith(item.href + '/');
+                    })();
 
                     return (
                         <li key={item.href} className="flex-1">

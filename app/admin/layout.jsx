@@ -3,7 +3,7 @@ import AppShell from '../../components/appShell';
 
 export default function AdminLayout({ children }) {
     return (
-        <AppShell variant="admin" activeTitle="Dashboard">
+        <AppShell variant="admin">
             {children}
         </AppShell>
     );
