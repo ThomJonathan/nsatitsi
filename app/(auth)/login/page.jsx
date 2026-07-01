@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,8 +20,9 @@ export default function LoginPage() {
         setLoading(true);
         // Replace with your actual auth logic
         setTimeout(() => {
-            setLoading(false);
+            setLoading(true);
             // e.g. router.push("/dashboard")
+            router.push("/student");
         }, 1500);
     };
 
