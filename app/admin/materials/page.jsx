@@ -41,7 +41,11 @@ export default function MaterialsLibraryPage() {
         try {
             const res = await fetch(`/api/files?category=${cat}`);
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Failed to load materials");
+            if (!res.ok) {
+                setError(data.error || "Failed to load materials");
+                setFiles([]);
+                return;
+            }
             setFiles(data.files || []);
         } catch (err) {
             setError(err.message);
@@ -89,7 +93,10 @@ export default function MaterialsLibraryPage() {
                 body: JSON.stringify({ key }),
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Delete failed");
+            if (!res.ok) {
+                alert(data.error || "Delete failed");
+                return;
+            }
             setFiles((prev) => prev.filter((f) => f.key !== key));
         } catch (err) {
             alert(err.message);
@@ -102,7 +109,10 @@ export default function MaterialsLibraryPage() {
         try {
             const res = await fetch(`/api/download?key=${encodeURIComponent(key)}`);
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Could not generate link");
+            if (!res.ok) {
+                alert(data.error || "Could not generate link");
+                return;
+            }
             window.open(data.url, "_blank");
         } catch (err) {
             alert(err.message);
@@ -544,10 +554,36 @@ export default function MaterialsLibraryPage() {
                     .mlib-table-head { display: none; }
                     .mlib-row {
                         grid-template-columns: 1fr;
-                        gap: 0.5rem;
+                        gap: 0.65rem;
+                        align-items: flex-start;
                     }
-                    .col-size, .col-uploaded { font-size: 0.8rem; color: #9ca3af; }
-                    .col-actions { justify-content: flex-start; }
+                    .col-material,
+                    .col-size,
+                    .col-uploaded,
+                    .col-actions {
+                        width: 100%;
+                    }
+                    .col-material {
+                        align-items: flex-start;
+                    }
+                    .col-actions {
+                        justify-content: flex-start;
+                        margin-top: 0.25rem;
+                    }
+                    .col-size, .col-uploaded {
+                        font-size: 0.8rem;
+                        color: #9ca3af;
+                    }
+                    .mlib-name {
+                        max-width: 100%;
+                        white-space: normal;
+                        overflow: visible;
+                        text-overflow: initial;
+                        word-break: break-word;
+                    }
+                    .mlib-badges {
+                        flex-wrap: wrap;
+                    }
                     .mlib-search-wrap { width: 180px; }
                 }
             `}</style>
