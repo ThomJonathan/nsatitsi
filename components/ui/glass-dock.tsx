@@ -67,8 +67,8 @@ const MorphingIcon = ({ type, isActive, onClick, onMouseEnter }: { type: string,
         });
     };
 
-    // ... (Simulate other animations similarly or simplify for brevity in this single file component)
-    // For brevity, mapping only the structure. Full GSAP keyframes should be here as in previous file.
+    // ... (Simulate other animations similarly or simplify for brevity in this single files component)
+    // For brevity, mapping only the structure. Full GSAP keyframes should be here as in previous files.
     // I will include all animations to ensure full functionality.
 
     const animateBlog = () => {

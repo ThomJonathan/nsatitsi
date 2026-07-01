@@ -10,7 +10,7 @@ import {
 
 const adminNav = [
     { title: 'Dashboard', icon: LayoutGrid, href: '/admin' },
-    { title: 'Materials', icon: Package, href: '/admin/materials' },
+    { title: 'Materials', icon: Package, href: '/admin/upload' },
     { title: 'Users', icon: Users, href: '/admin/users' },
     { title: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
 ];

@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from 'react';
 import { Plus, FileText, BookOpen, ChevronRight, Users, Package, Download, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import UploadMaterialModal from '@/components/uploadMaterial';
 
 const stats = [
     {
@@ -105,6 +107,8 @@ const newRegistrations = [
 ];
 
 export default function AdminHome() {
+    const [modalOpen, setModalOpen] = useState(false);
+
     return (
         <div className="px-4 md:px-10 py-5 md:py-8 max-w-7xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -121,7 +125,11 @@ export default function AdminHome() {
             </div>
 
             <div className="mb-8">
-                <button className="w-full bg-white border border-black/10 rounded-[2rem] p-8 md:p-12 flex flex-col items-center justify-center gap-6 group hover:border-green-600/30 hover:shadow-xl hover:shadow-green-900/[0.02] transition-all">
+                <button
+                    type="button"
+                    onClick={() => setModalOpen(true)}
+                    className="w-full bg-white border border-black/10 rounded-[2rem] p-8 md:p-12 flex flex-col items-center justify-center gap-6 group hover:border-green-600/30 hover:shadow-xl hover:shadow-green-900/[0.02] transition-all"
+                >
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <Plus className="w-8 h-8 md:w-10 md:h-10 text-[#1B4D2E]" />
                     </div>
@@ -133,6 +141,14 @@ export default function AdminHome() {
                     </div>
                 </button>
             </div>
+
+            <UploadMaterialModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onUploaded={() => {
+                    // Hook point: refresh recent uploads when backend list API is connected.
+                }}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <section className="bg-white border border-black/10 rounded-3xl overflow-hidden">
