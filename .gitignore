@@ -1,0 +1,30 @@
+# Ignore everything in the project root
+/*
+
+# But keep these folders
+!/backend/
+!/frontend/
+
+# Keep this .gitignore file itself
+!.gitignore
+
+# =========================
+# Backend
+# =========================
+backend/.env
+backend/.venv/
+backend/myenv/
+backend/__pycache__/
+backend/**/*.pyc
+
+# =========================
+# Frontend
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+
+# IDE
+.idea/
+.vscode/
