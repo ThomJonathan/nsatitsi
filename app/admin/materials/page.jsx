@@ -3,6 +3,16 @@
 import { useState, useEffect, useMemo } from "react";
 import UploadMaterialModal from "../../../components/uploadMaterial";
 
+function DocumentThumbnail({ category }) {
+    const iconInfo = CATEGORY_ICON[category] || CATEGORY_ICON.books;
+
+    return (
+        <div className="mlib-icon" style={{ background: iconInfo.bg, color: iconInfo.color }}>
+            {iconInfo.emoji}
+        </div>
+    );
+}
+
 const CATEGORY_OPTIONS = [
     { value: "", label: "All Types" },
     { value: "books", label: "Textbooks" },
@@ -35,6 +45,7 @@ export default function MaterialsLibraryPage() {
     const [search, setSearch] = useState("");
     const [uploadOpen, setUploadOpen] = useState(false);
     const [deletingKey, setDeletingKey] = useState(null);
+    const [downloadProgress, setDownloadProgress] = useState(null); // { key, percent } | null
 
     const fetchFiles = async (cat) => {
         setError("");
@@ -87,7 +98,7 @@ export default function MaterialsLibraryPage() {
         if (!confirm("Delete this material? This can't be undone.")) return;
         setDeletingKey(key);
         try {
-            const res = await fetch("/api/files/delete", {
+            const res = await fetch("/api/delete", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ key }),
@@ -105,17 +116,50 @@ export default function MaterialsLibraryPage() {
         }
     };
 
-    const handleDownload = async (key) => {
+    const handleDownload = async (key, fileName) => {
+        setDownloadProgress({ key, percent: 0 });
         try {
             const res = await fetch(`/api/download?key=${encodeURIComponent(key)}`);
-            const data = await res.json();
             if (!res.ok) {
-                alert(data.error || "Could not generate link");
+                const data = await res.json();
+                alert(data.error || "Could not fetch file");
+                setDownloadProgress(null);
                 return;
             }
-            window.open(data.url, "_blank");
+
+            const contentLength = res.headers.get("Content-Length");
+            const total = contentLength ? parseInt(contentLength, 10) : 0;
+
+            const reader = res.body.getReader();
+            const chunks = [];
+            let received = 0;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                chunks.push(value);
+                received += value.length;
+
+                if (total > 0) {
+                    const percent = Math.round((received / total) * 100);
+                    setDownloadProgress({ key, percent });
+                }
+            }
+
+            const blob = new Blob(chunks);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         } catch (err) {
             alert(err.message);
+        } finally {
+            setDownloadProgress(null);
         }
     };
 
@@ -217,13 +261,10 @@ export default function MaterialsLibraryPage() {
                         </div>
                     ) : (
                         visibleFiles.map((f) => {
-                            const iconInfo = CATEGORY_ICON[f.category] || CATEGORY_ICON.books;
                             return (
                                 <div className="mlib-row" key={f.key}>
                                     <div className="col-material">
-                                        <span className="mlib-icon" style={{ background: iconInfo.bg, color: iconInfo.color }}>
-                                            {iconInfo.emoji}
-                                        </span>
+                                        <DocumentThumbnail category={f.category} />
                                         <div>
                                             <div className="mlib-name" title={f.name}>{f.name}</div>
                                             <div className="mlib-badges">
@@ -235,12 +276,27 @@ export default function MaterialsLibraryPage() {
                                     <div className="col-size">{formatSize(f.size)}</div>
                                     <div className="col-uploaded">{formatDate(f.lastModified)}</div>
                                     <div className="col-actions">
-                                        <button className="mlib-action-btn" onClick={() => handleDownload(f.key)} aria-label="Download">
-                                            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M9 2.5V11.5M9 11.5L5.5 8M9 11.5L12.5 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                                                <path d="M3 14.5H15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                                            </svg>
-                                        </button>
+                                        {downloadProgress?.key === f.key ? (
+                                            <div className="mlib-download-progress" aria-label={`Downloading ${downloadProgress.percent}%`}>
+                                                <svg viewBox="0 0 36 36" className="mlib-progress-ring">
+                                                    <circle cx="18" cy="18" r="16" className="mlib-progress-bg" />
+                                                    <circle
+                                                        cx="18" cy="18" r="16"
+                                                        className="mlib-progress-fg"
+                                                        strokeDasharray={`${2 * Math.PI * 16}`}
+                                                        strokeDashoffset={`${2 * Math.PI * 16 * (1 - downloadProgress.percent / 100)}`}
+                                                    />
+                                                </svg>
+                                                <span className="mlib-progress-text">{downloadProgress.percent}%</span>
+                                            </div>
+                                        ) : (
+                                            <button className="mlib-action-btn" onClick={() => handleDownload(f.key, f.name)} aria-label="Download">
+                                                <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M9 2.5V11.5M9 11.5L5.5 8M9 11.5L12.5 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    <path d="M3 14.5H15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                                                </svg>
+                                            </button>
+                                        )}
                                         <button
                                             className="mlib-action-btn danger"
                                             onClick={() => handleDelete(f.key)}
@@ -447,7 +503,7 @@ export default function MaterialsLibraryPage() {
                 .mlib-badge.cat { background: #e5ece7; color: #385444; }
 
                 .col-size, .col-uploaded { font-size: 0.85rem; color: #4b5563; }
-                .col-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
+                .col-actions { display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center; }
                 .mlib-action-btn {
                     width: 32px;
                     height: 32px;
@@ -465,6 +521,30 @@ export default function MaterialsLibraryPage() {
                 .mlib-action-btn:hover { background: #e5e7eb; }
                 .mlib-action-btn.danger:hover { background: #fef2f2; color: #b91c1c; }
                 .mlib-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+                .mlib-download-progress {
+                    position: relative;
+                    width: 32px;
+                    height: 32px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .mlib-progress-ring { width: 32px; height: 32px; transform: rotate(-90deg); }
+                .mlib-progress-bg { fill: none; stroke: #e5e7eb; stroke-width: 3; }
+                .mlib-progress-fg {
+                    fill: none;
+                    stroke: #1B4D2E;
+                    stroke-width: 3;
+                    stroke-linecap: round;
+                    transition: stroke-dashoffset 0.15s ease;
+                }
+                .mlib-progress-text {
+                    position: absolute;
+                    font-size: 0.55rem;
+                    font-weight: 700;
+                    color: #1B4D2E;
+                }
 
                 .mlib-empty {
                     padding: 3rem 1.5rem;
@@ -556,6 +636,7 @@ export default function MaterialsLibraryPage() {
                         grid-template-columns: 1fr;
                         gap: 0.65rem;
                         align-items: flex-start;
+                        padding: 1.25rem 1rem;
                     }
                     .col-material,
                     .col-size,

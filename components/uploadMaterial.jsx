@@ -38,7 +38,18 @@ const LEVELS = [
     { value: "senior", label: "Senior Sec.", range: "Form 3\u20134", classes: ["Form 3", "Form 4"] },
 ];
 
-const SUBJECTS = [
+const PRIMARY_SUBJECTS = [
+    { value: "english", label: "English", emoji: "\uD83D\uDCD6" },
+    { value: "mathematics", label: "Mathematics", emoji: "\uD83D\uDD22" },
+    { value: "social-environmental-studies", label: "Social and Environmental Studies", emoji: "\uD83C\uDF10" },
+    { value: "science-technology", label: "Science and Technology", emoji: "\uD83D\uDD2C" },
+    { value: "life-skills", label: "Life Skills", emoji: "\uD83D\uDCBB" },
+    { value: "agriculture", label: "Agriculture", emoji: "\uD83D\uDC17" },
+    { value: "bible-knowledge", label: "Bible Knowledge", emoji: "\u270D\uFE0F" },
+    { value: "religious-studies", label: "Religious Studies", emoji: "\uD83D\uDD4F" },
+];
+
+const SECONDARY_SUBJECTS = [
     { value: "english", label: "English", emoji: "\uD83D\uDCD6" },
     { value: "mathematics", label: "Mathematics", emoji: "\uD83D\uDD22" },
     { value: "biology", label: "Biology", emoji: "\uD83E\uDDEC" },
@@ -46,8 +57,15 @@ const SUBJECTS = [
     { value: "physics", label: "Physics", emoji: "\u26A1" },
     { value: "history", label: "History", emoji: "\uD83D\uDCDC" },
     { value: "geography", label: "Geography", emoji: "\uD83C\uDF0D" },
-    { value: "accounting", label: "Accounting", emoji: "\uD83D\uDCCA" },
+    { value: "agriculture", label: "Agriculture", emoji: "\uD83D\uDC17" },
+    { value: "social-studies", label: "Social Studies", emoji: "\uD83D\uDC66" },
+    { value: "life-skills", label: "Life Skills", emoji: "\uD83D\uDCBB" },
+    { value: "computer-studies", label: "Computer Studies", emoji: "\uD83D\uDD28" },
+    { value: "home-economics", label: "Home Economics", emoji: "\uD83D\uDCB8" },
+    { value: "business-studies", label: "Business Studies", emoji: "\uD83D\uDCBC" },
 ];
+
+const getSubjectOptions = (level) => (level === "primary" ? PRIMARY_SUBJECTS : SECONDARY_SUBJECTS);
 
 const initialState = {
     type: null,
@@ -133,12 +151,15 @@ export default function UploadMaterialModal({ open, onClose, onUploaded }) {
             const res = await fetch("/api/upload", { method: "POST", body: formData });
             const result = await res.json();
 
-            if (!res.ok) throw new Error(result.error || "Upload failed");
+            if (!res.ok) {
+                setError(result.error || "Upload failed");
+                return;
+            }
 
             onUploaded?.(result);
             handleClose();
         } catch (err) {
-            setError(err.message || "Something went wrong. Please try again.");
+            setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
         } finally {
             setUploading(false);
         }
@@ -146,7 +167,8 @@ export default function UploadMaterialModal({ open, onClose, onUploaded }) {
 
     const selectedType = TYPES.find((t) => t.value === data.type);
     const selectedLevel = LEVELS.find((l) => l.value === data.level);
-    const selectedSubject = SUBJECTS.find((s) => s.value === data.subject);
+    const subjectOptions = getSubjectOptions(data.level);
+    const selectedSubject = subjectOptions.find((s) => s.value === data.subject);
 
     return (
         <div className="umm-overlay" onMouseDown={handleClose}>
@@ -213,7 +235,7 @@ export default function UploadMaterialModal({ open, onClose, onUploaded }) {
                                         key={l.value}
                                         type="button"
                                         className={`umm-level-card ${data.level === l.value ? "selected" : ""}`}
-                                        onClick={() => update({ level: l.value, className: null })}
+                                        onClick={() => update({ level: l.value, className: null, subject: null })}
                                     >
                                         <span className="umm-level-label">{l.label}</span>
                                         <span className="umm-level-range">{l.range}</span>
@@ -243,9 +265,14 @@ export default function UploadMaterialModal({ open, onClose, onUploaded }) {
 
                     {step === 2 && (
                         <>
-                            <p className="umm-prompt">Select the subject for this material</p>
+                            <p className="umm-prompt">
+                                Select a {selectedLevel?.value === "primary" ? "primary" : "secondary"} subject for this material
+                            </p>
+                            <h3 className="umm-section-label">
+                                {selectedLevel?.label} Subjects
+                            </h3>
                             <div className="umm-subject-grid">
-                                {SUBJECTS.map((s) => (
+                                {subjectOptions.map((s) => (
                                     <button
                                         key={s.value}
                                         type="button"

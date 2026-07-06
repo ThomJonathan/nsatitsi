@@ -1,35 +1,5 @@
-// import { NextResponse } from "next/server";
-// import { ListObjectsV2Command } from "@aws-sdk/client-s3";
-// import { b2Client } from "@/lib/b2";
-//
-// export async function GET(request) {
-//     try {
-//         const { searchParams } = new URL(request.url);
-//         const category = searchParams.get("category") || "";
-//
-//         const command = new ListObjectsV2Command({
-//             Bucket: process.env.B2_BUCKET_NAME,
-//             Prefix: category ? `${category}/` : "",
-//         });
-//
-//         const result = await b2Client.send(command);
-//         const files = (result.Contents || []).map((obj) => ({
-//             key: obj.Key,
-//             size: obj.Size,
-//             lastModified: obj.LastModified,
-//         }));
-//
-//         return NextResponse.json({ files });
-//     } catch (err) {
-//         console.error("B2 list error:", err);
-//         return NextResponse.json({ error: "Failed to list files" }, { status: 500 });
-//     }
-// }
-
-
 import { NextResponse } from "next/server";
-import { ListObjectsV2Command } from "@aws-sdk/client-s3";
-import { b2Client } from "@/lib/b2";
+import { getMegaStorage } from "@/lib/mega";
 
 const CATEGORY_LABELS = {
     books: "Textbook",
@@ -37,43 +7,67 @@ const CATEGORY_LABELS = {
     answersheets: "Answer Sheet",
 };
 
+/**
+ * Recursively collects all files from a MEGA folder.
+ */
+function getAllFiles(node, category = null) {
+    let files = [];
+    if (!node.children) return files;
+
+    for (const child of node.children) {
+        if (child.directory) {
+            // If we are at the top level (Nsatitsi root), the next level is the category
+            const nextCategory = category || child.name;
+            files = files.concat(getAllFiles(child, nextCategory));
+        } else {
+            const displayName = child.name.replace(/^\d+-/, "");
+            const ext = displayName.split(".").pop()?.toUpperCase() || "";
+            files.push({
+                key: child.nodeId, // frontend expects 'key'
+                category: category || "other",
+                categoryLabel: CATEGORY_LABELS[category] || category || "Other",
+                name: displayName,
+                ext,
+                size: child.size,
+                lastModified: child.timestamp * 1000, // MEGA timestamp is in seconds
+            });
+        }
+    }
+    return files;
+}
+
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
-        const category = searchParams.get("category") || "";
+        const requestedCategory = searchParams.get("category") || "";
 
-        const command = new ListObjectsV2Command({
-            Bucket: process.env.B2_BUCKET_NAME,
-            Prefix: category ? `${category}/` : "",
-        });
+        const storage = await getMegaStorage();
+        
+        // Ensure children are loaded
+        if (storage.root.fetchChildren && (!storage.root.children || storage.root.children.length === 0)) {
+            await new Promise(resolve => storage.root.fetchChildren(() => resolve()));
+        }
 
-        const result = await b2Client.send(command);
+        // Look for the 'Nsatitsi' root folder
+        const rootFolder = storage.root.children?.find(
+            (child) => child.directory && child.name.toLowerCase() === "nsatitsi"
+        );
 
-        const files = (result.Contents || [])
-            // skip "folder placeholder" objects some tools create (keys ending in /)
-            .filter((obj) => !obj.Key.endsWith("/"))
-            .map((obj) => {
-                const [cat, ...rest] = obj.Key.split("/");
-                const rawName = rest.join("/");
-                // strip the "<timestamp>-" prefix we add on upload, for display
-                const displayName = rawName.replace(/^\d+-/, "");
-                const ext = displayName.split(".").pop()?.toUpperCase() || "";
+        if (!rootFolder) {
+            return NextResponse.json({ files: [], total: 0 });
+        }
 
-                return {
-                    key: obj.Key,
-                    category: cat,
-                    categoryLabel: CATEGORY_LABELS[cat] || cat,
-                    name: displayName,
-                    ext,
-                    size: obj.Size,
-                    lastModified: obj.LastModified,
-                };
-            })
-            .sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+        let allFiles = getAllFiles(rootFolder);
 
-        return NextResponse.json({ files, total: files.length });
+        if (requestedCategory) {
+            allFiles = allFiles.filter(f => f.category === requestedCategory);
+        }
+
+        allFiles.sort((a, b) => b.lastModified - a.lastModified);
+
+        return NextResponse.json({ files: allFiles, total: allFiles.length });
     } catch (err) {
-        console.error("B2 list error:", err);
+        console.error("MEGA list error:", err);
         return NextResponse.json({ error: "Failed to list files" }, { status: 500 });
     }
 }
