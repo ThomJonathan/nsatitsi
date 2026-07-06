@@ -12,10 +12,23 @@
 # Backend
 # =========================
 backend/.env
+backend/.agents
+backend/.neon
+backend/*.md
+backend/check_config.py
+backend/check_db.py
+backend/final_cleanup_verification.py
+backend/verify_cleanup.py
+backend/scripts
+backend/.env.example
+backend/tests/test_app.py
+backend/requirements.txt
 backend/.venv/
 backend/myenv/
 backend/__pycache__/
 backend/**/*.pyc
+backend/**/*.db
+*.db
 
 # =========================
 # Frontend
@@ -24,6 +37,8 @@ frontend/node_modules/
 frontend/dist/
 frontend/build/
 frontend/.next/
+frontend/.env.local
+frontend/lib
 
 # IDE
 .idea/

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch, setAuthToken, saveUser } from "../../../lib/api";
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -18,12 +19,25 @@ export default function LoginPage() {
             return;
         }
         setLoading(true);
-        // Replace with your actual auth logic
-        setTimeout(() => {
-            setLoading(true);
-            // e.g. router.push("/dashboard")
+        try {
+            const res = await apiFetch("/api/v1/auth/login", {
+                method: "POST",
+                body: JSON.stringify({ identifier: email, password }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || "Login failed");
+            }
+            const data = await res.json();
+            // store token and user
+            setAuthToken(data.access_token);
+            saveUser(data.user);
+            // redirect to student dashboard
             router.push("/student");
-        }, 1500);
+        } catch (err) {
+            setError(err.message || "Login failed");
+            setLoading(false);
+        }
     };
 
     return (

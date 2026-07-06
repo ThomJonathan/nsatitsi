@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import tempfile
 from pathlib import Path
 import unittest
@@ -14,10 +15,18 @@ from app.models.user import User
 
 
 class BackendSmokeTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Use TEST_DATABASE_URL if available (must be PostgreSQL)
+        # Otherwise, tests will be skipped
+        cls.test_db_url = os.getenv("TEST_DATABASE_URL")
+        if not cls.test_db_url:
+            cls.test_db_url = os.getenv("DATABASE_URL")  # Fall back to main database
+            if not cls.test_db_url or not cls.test_db_url.startswith("postgresql"):
+                raise SkipTest("TEST_DATABASE_URL or DATABASE_URL must be set and use PostgreSQL")
+
     def setUp(self) -> None:
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = Path(self.temp_dir.name) / "test.db"
-        self.database_url = f"sqlite:///{self.db_path.as_posix()}"
+        self.database_url = self.test_db_url
         self.app = create_app(database_url=self.database_url)
         configure_engine(self.database_url)
         init_db()
@@ -38,7 +47,6 @@ class BackendSmokeTest(unittest.TestCase):
         self.client.close()
         self.app.dependency_overrides.clear()
         dispose_engine()
-        self.temp_dir.cleanup()
 
     def _create_user(self, username: str, role: Role = Role.STUDENT) -> User:
         session_factory = get_session_factory()

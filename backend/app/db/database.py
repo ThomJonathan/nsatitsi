@@ -18,10 +18,7 @@ _lock = Lock()
 
 
 def _build_engine(database_url: str) -> Engine:
-    kwargs = {"future": True}
-    if database_url.startswith("sqlite"):
-        kwargs["connect_args"] = {"check_same_thread": False}
-    return create_engine(database_url, **kwargs)
+    return create_engine(database_url, future=True)
 
 
 def configure_engine(database_url: str | None = None) -> Engine:

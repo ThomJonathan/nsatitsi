@@ -5,6 +5,12 @@ from functools import lru_cache
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+env_file = Path(__file__).resolve().parents[2] / ".env"
+if env_file.exists():
+    load_dotenv(env_file)
 
 @dataclass(frozen=True)
 class Settings:
@@ -12,7 +18,7 @@ class Settings:
     app_env: str = field(default_factory=lambda: os.getenv("APP_ENV", "development"))
     api_v1_prefix: str = field(default_factory=lambda: os.getenv("API_V1_PREFIX", "/api/v1"))
     database_url: str = field(
-        default_factory=lambda: os.getenv("DATABASE_URL", f"sqlite:///{Path(__file__).resolve().parents[3] / 'nsatitsi.db'}")
+        default_factory=lambda: os.getenv("DATABASE_URL", "")
     )
     auth_secret: str = field(default_factory=lambda: os.getenv("AUTH_SECRET", "change-me-in-production"))
     auth_token_ttl_minutes: int = field(default_factory=lambda: int(os.getenv("AUTH_TOKEN_TTL_MINUTES", "1440")))
@@ -27,5 +33,13 @@ class Settings:
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return Settings()
+    settings = Settings()
 
+    # Validate DATABASE_URL is set and uses PostgreSQL
+    if not settings.database_url:
+        raise ValueError("DATABASE_URL environment variable must be set")
+
+    if not settings.database_url.startswith("postgresql"):
+        raise ValueError("DATABASE_URL must use PostgreSQL (postgresql+psycopg://...)")
+
+    return settings
