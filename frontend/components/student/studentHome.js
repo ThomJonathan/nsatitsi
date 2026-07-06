@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Search, Download, Bookmark, BookOpen, FileText, Bell } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
 
 const subjects = [
     { code: 'MA', name: 'Mathematics', color: 'bg-blue-50 text-blue-600' },
@@ -23,13 +24,9 @@ export default function StudentHome({ name = 'Student', form = 'Form 1', school 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('nsatitsi_token');
-                
                 // Fetch user download count
                 try {
-                    const downloadsRes = await fetch('/api/v1/users/me/downloads', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
+                    const downloadsRes = await apiFetch('/api/v1/users/me/downloads');
                     if (downloadsRes.ok) {
                         const { download_count } = await downloadsRes.json();
                         setDownloadCount(download_count);
@@ -40,9 +37,7 @@ export default function StudentHome({ name = 'Student', form = 'Form 1', school 
 
                 // Fetch trending materials (top 3 most downloaded)
                 try {
-                    const materialsRes = await fetch('/api/v1/materials?limit=100&offset=0', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
+                    const materialsRes = await apiFetch('/api/v1/materials?limit=100&offset=0');
                     if (materialsRes.ok) {
                         const materialsData = await materialsRes.json();
                         // Sort by download_count and take top 3
