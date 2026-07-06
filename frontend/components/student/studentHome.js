@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { Search, Download, Bookmark, BookOpen, FileText, Bell } from 'lucide-react';
 
 const subjects = [
@@ -14,37 +15,61 @@ const subjects = [
     { code: 'BS', name: 'Business Studies', color: 'bg-violet-50 text-violet-600' },
 ];
 
-const trending = [
-    {
-        title: 'Mathematics MSCE 2023 Past Paper',
-        meta: 'Mathematics · Form 4 · 2023',
-        tag: 'Answers',
-        downloads: 3241,
-        icon: FileText,
-        iconBg: 'bg-blue-50',
-        iconColor: 'text-blue-600',
-    },
-    {
-        title: 'Biology Form 4 Textbook',
-        meta: 'Biology · Form 4',
-        downloads: 2108,
-        bookmarked: true,
-        icon: BookOpen,
-        iconBg: 'bg-green-50',
-        iconColor: 'text-green-700',
-    },
-    {
-        title: 'English Language MSCE 2022',
-        meta: 'English · Form 4 · 2022',
-        tag: 'Answers',
-        downloads: 1987,
-        icon: FileText,
-        iconBg: 'bg-purple-50',
-        iconColor: 'text-purple-600',
-    },
-];
+export default function StudentHome({ name = 'Student', form = 'Form 1', school = 'School' }) {
+    const [downloadCount, setDownloadCount] = useState(0);
+    const [trending, setTrending] = useState([]);
+    const [loadingTrending, setLoadingTrending] = useState(true);
 
-export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school = 'Kamuzu Academy' }) {
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem('nsatitsi_token');
+                
+                // Fetch user download count
+                try {
+                    const downloadsRes = await fetch('/api/v1/users/me/downloads', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (downloadsRes.ok) {
+                        const { download_count } = await downloadsRes.json();
+                        setDownloadCount(download_count);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch download count:", err);
+                }
+
+                // Fetch trending materials (top 3 most downloaded)
+                try {
+                    const materialsRes = await fetch('/api/v1/materials?limit=100&offset=0', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (materialsRes.ok) {
+                        const materialsData = await materialsRes.json();
+                        // Sort by download_count and take top 3
+                        const topMaterials = (materialsData.items || [])
+                            .sort((a, b) => (b.download_count || 0) - (a.download_count || 0))
+                            .slice(0, 3)
+                            .map(material => ({
+                                title: material.title,
+                                meta: `${material.subject} · ${material.school_class}`,
+                                downloads: material.download_count || 0,
+                                icon: FileText,
+                                iconBg: 'bg-blue-50',
+                                iconColor: 'text-blue-600',
+                                bookmarked: false,
+                            }));
+                        setTrending(topMaterials);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch trending materials:", err);
+                }
+            } finally {
+                setLoadingTrending(false);
+            }
+        };
+
+        fetchData();
+    }, []);
     return (
         <div className="px-4 md:px-10 py-5 md:py-8 max-w-6xl">
             {/* Greeting + bell (bell here is desktop-only; mobile bell lives in MobileHeader) */}
@@ -76,9 +101,9 @@ export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3 mb-7">
-                <StatCard icon={Download} value={24} label="Downloads" iconBg="bg-blue-50" iconColor="text-blue-600" />
-                <StatCard icon={Bookmark} value={2} label="Bookmarks" iconBg="bg-green-50" iconColor="text-green-700" />
-                <StatCard icon={BookOpen} value={9} label="Subjects" iconBg="bg-purple-50" iconColor="text-purple-600" />
+                <StatCard icon={Download} value={downloadCount} label="Downloads" iconBg="bg-blue-50" iconColor="text-blue-600" />
+                <StatCard icon={Bookmark} value={0} label="Bookmarks" iconBg="bg-green-50" iconColor="text-green-700" />
+                <StatCard icon={BookOpen} value={subjects.length} label="Subjects" iconBg="bg-purple-50" iconColor="text-purple-600" />
             </div>
 
             {/* Browse by subject */}
@@ -106,34 +131,40 @@ export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school
                 <a href="#" className="text-sm font-medium text-[#1B4D2E]">See all</a>
             </div>
             <div className="flex flex-col gap-3 pb-6">
-                {trending.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                        <div key={item.title} className="flex items-center gap-3 md:gap-4 bg-white border border-black/15 rounded-2xl px-3 md:px-4 py-3 md:py-4">
-                            <span className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg}`}>
-                                <Icon className={`w-4 h-4 md:w-5 md:h-5 ${item.iconColor}`} />
-                            </span>
-                            <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-[#161613] text-sm md:text-base truncate">{item.title}</p>
-                                <p className="text-[11px] md:text-sm text-[#9a9a90] mt-0.5 flex items-center gap-2 flex-wrap">
-                                    {item.meta}
-                                    {item.tag && (
-                                        <span className="text-[#1B4D2E] bg-green-50 px-2 py-0.5 rounded-full text-[10px] md:text-[11px] font-medium">
-                                            {item.tag}
-                                        </span>
-                                    )}
-                                </p>
-                            </div>
-                            <div className="hidden sm:flex items-center gap-3 shrink-0 text-[#9a9a90]">
-                                <Bookmark className={`w-4 h-4 ${item.bookmarked ? 'fill-[#1B4D2E] text-[#1B4D2E]' : ''}`} />
-                                <span className="flex items-center gap-1 text-xs md:text-sm">
-                                    <Download className="w-3.5 h-3.5" />
-                                    {item.downloads.toLocaleString()}
+                {loadingTrending ? (
+                    <div className="text-center py-4 text-[#9a9a90]">Loading materials...</div>
+                ) : trending.length === 0 ? (
+                    <div className="text-center py-4 text-[#9a9a90]">No materials available yet</div>
+                ) : (
+                    trending.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <div key={item.title} className="flex items-center gap-3 md:gap-4 bg-white border border-black/15 rounded-2xl px-3 md:px-4 py-3 md:py-4">
+                                <span className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg}`}>
+                                    <Icon className={`w-4 h-4 md:w-5 md:h-5 ${item.iconColor}`} />
                                 </span>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-semibold text-[#161613] text-sm md:text-base truncate">{item.title}</p>
+                                    <p className="text-[11px] md:text-sm text-[#9a9a90] mt-0.5 flex items-center gap-2 flex-wrap">
+                                        {item.meta}
+                                        {item.tag && (
+                                            <span className="text-[#1B4D2E] bg-green-50 px-2 py-0.5 rounded-full text-[10px] md:text-[11px] font-medium">
+                                                {item.tag}
+                                            </span>
+                                        )}
+                                    </p>
+                                </div>
+                                <div className="hidden sm:flex items-center gap-3 shrink-0 text-[#9a9a90]">
+                                    <Bookmark className={`w-4 h-4 ${item.bookmarked ? 'fill-[#1B4D2E] text-[#1B4D2E]' : ''}`} />
+                                    <span className="flex items-center gap-1 text-xs md:text-sm">
+                                        <Download className="w-3.5 h-3.5" />
+                                        {item.downloads.toLocaleString()}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
             </div>
         </div>
     );

@@ -1,15 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, setAuthToken, saveUser } from "../../../lib/api";
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [stats, setStats] = useState({ materials: 0, students: 0 });
     const router = useRouter();
+
+    useEffect(() => {
+        // Fetch public stats for landing page
+        const fetchStats = async () => {
+            try {
+                const res = await fetch("/api/v1/stats");
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch stats:", err);
+            }
+        };
+
+        fetchStats();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -54,21 +73,16 @@ export default function LoginPage() {
                         educators across Malawi and beyond.
                     </p>
                     <div className="brand-stats">
-                        <div className="stat">
-                            <span className="stat-num">12K+</span>
-                            <span className="stat-label">Resources</span>
-                        </div>
-                        <div className="stat-divider" />
-                        <div className="stat">
-                            <span className="stat-num">4.8K</span>
-                            <span className="stat-label">Students</span>
-                        </div>
-                        <div className="stat-divider" />
-                        <div className="stat">
-                            <span className="stat-num">320+</span>
-                            <span className="stat-label">Educators</span>
-                        </div>
-                    </div>
+                         <div className="stat">
+                             <span className="stat-num">{stats.materials.toLocaleString()}</span>
+                             <span className="stat-label">Resources</span>
+                         </div>
+                         <div className="stat-divider" />
+                         <div className="stat">
+                             <span className="stat-num">{stats.students.toLocaleString()}</span>
+                             <span className="stat-label">Students</span>
+                         </div>
+                     </div>
                 </div>
                 <div className="brand-video-wrap">
                     <video

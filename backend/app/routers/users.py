@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import func, select
 
 from app.dependencies import get_current_user
 from app.db.database import get_db
 from app.models.user import User
+from app.models.download_log import DownloadLog
 from app.schemas.common import UserSummary
 from app.schemas.users import UserProfileUpdate, UserRead
 from app.services.auth_service import auth_service
@@ -26,4 +28,16 @@ def update_my_profile(
 ) -> UserRead:
     updated = auth_service.update_profile(session, current_user, payload)
     return UserRead.model_validate(updated)
+
+
+@router.get("/me/downloads")
+def get_my_download_count(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_db),
+) -> dict[str, int]:
+    """Get current user's download count"""
+    count = session.scalar(
+        select(func.count()).select_from(DownloadLog).where(DownloadLog.user_id == current_user.id)
+    ) or 0
+    return {"download_count": count}
 
