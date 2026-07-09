@@ -39,8 +39,7 @@ export default function BookmarksPage() {
 
     return (
         <div className="px-4 md:px-10 py-5 md:py-8 max-w-5xl mx-auto">
-            {/* Search Bar - Matching the image's layout */}
-            <div className="relative mb-10 max-w-md">
+            <div className="relative mb-6 max-w-md">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9a9a90]" />
                 <input
                     type="text"
@@ -67,12 +66,12 @@ export default function BookmarksPage() {
                                 key={item.id}
                                 className="group flex items-center justify-between bg-white border border-black/5 rounded-2xl p-3 md:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                             >
-                                <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                                <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                                     <div className={`flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-xl md:rounded-2xl ${item.iconColor}`}>
                                         <Icon className="h-4 w-4 md:h-5 md:h-5" />
                                     </div>
-                                    <div className="min-w-0">
-                                        <h3 className="text-sm md:text-[15px] font-bold text-[#161613] truncate">
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                        <h3 className="text-sm md:text-[15px] font-bold text-[#161613] break-words">
                                             {item.name}
                                         </h3>
                                         <p className="text-[10px] md:text-xs text-[#9a9a90] mt-0.5">

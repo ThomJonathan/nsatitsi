@@ -32,8 +32,8 @@ export default function GlassDock({ items = [] }) {
                                         : 'text-[#8a8a80] hover:text-[#161613]'
                                 }`}
                             >
-                                {Icon ? <Icon className="h-6 w-6" strokeWidth={2} /> : null}
-                                <span className="text-[12px] leading-none font-semibold">{item.title}</span>
+                                {Icon ? <Icon className="h-6 w-6" strokeWidth={1.5} /> : null}
+                                <span className="text-[12px] leading-none font-normal">{item.title}</span>
                             </Link>
                         </li>
                     );
