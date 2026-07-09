@@ -12,7 +12,7 @@ export default function MobileHeader({ initials = 'TB', hasNotification = false 
     };
 
     return (
-        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-black/5 sticky top-0 z-40">
+        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-black/5 shrink-0 z-40">
             <div className="flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#1B4D2E] text-white">
                     <span className="text-sm font-bold">N</span>

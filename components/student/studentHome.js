@@ -20,6 +20,7 @@ const SECONDARY_SUBJECTS = [
     { value: "english", label: "English", emoji: "📖", code: "EN", color: "bg-blue-100 text-blue-700" },
     { value: "mathematics", label: "Mathematics", emoji: "🔢", code: "MA", color: "bg-green-100 text-green-700" },
     { value: "additional-mathematics", label: "Additional Mathematics", emoji: "🔢", code: "AM", color: "bg-emerald-100 text-emerald-700" },
+    {value: "french",label: "French",emoji: "🇫🇷",code: "FR",color: "bg-indigo-100 text-indigo-700"},
     { value: "chichewa", label: "Chichewa", emoji: "🇲🇼", code: "CH", color: "bg-red-100 text-red-700" },
     { value: "biology", label: "Biology", emoji: "🧬", code: "BI", color: "bg-lime-100 text-lime-700" },
     { value: "chemistry", label: "Chemistry", emoji: "🧪", code: "CHE", color: "bg-teal-100 text-teal-700" },
@@ -168,6 +169,26 @@ export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school
                 <StatCard icon={BookOpen} value={9} label="Subjects" iconBg="bg-purple-50" iconColor="text-purple-600" />
             </div>
 
+            {/* Browse by subject */}
+            <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-bold tracking-wide text-[#161613]">BROWSE BY SUBJECT</h2>
+                <span className="text-xs md:text-sm text-[#9a9a90]">{levelLabel}</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                {subjects.map((s) => (
+                    <button
+                        key={s.value}
+                        onClick={() => router.push(`/student/materials/${s.value.toLowerCase()}`)}
+                        className="flex items-center gap-2 md:gap-3 bg-white border border-black/15 rounded-2xl px-3 md:px-4 py-3 md:py-3.5 hover:border-[#1B4D2E]/30 hover:shadow-sm transition-all text-left"
+                    >
+                        <span className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold shrink-0 ${s.color}`}>
+                            {s.code}
+                        </span>
+                        <span className="text-xs md:text-[15px] font-medium text-[#161613] truncate">{s.label}</span>
+                    </button>
+                ))}
+            </div>
+
             {/* Latest materials */}
             <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold tracking-wide text-[#161613]">LATEST MATERIALS</h2>
@@ -263,26 +284,6 @@ export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school
                         No materials found in Mega storage yet.
                     </div>
                 )}
-            </div>
-
-            {/* Browse by subject */}
-            <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-bold tracking-wide text-[#161613]">BROWSE BY SUBJECT</h2>
-                <span className="text-xs md:text-sm text-[#9a9a90]">{levelLabel}</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                {subjects.map((s) => (
-                    <button
-                        key={s.value}
-                        onClick={() => router.push(`/student/materials/${s.value.toLowerCase()}`)}
-                        className="flex items-center gap-2 md:gap-3 bg-white border border-black/15 rounded-2xl px-3 md:px-4 py-3 md:py-3.5 hover:border-[#1B4D2E]/30 hover:shadow-sm transition-all text-left"
-                    >
-                        <span className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold shrink-0 ${s.color}`}>
-                            {s.code}
-                        </span>
-                        <span className="text-xs md:text-[15px] font-medium text-[#161613] truncate">{s.label}</span>
-                    </button>
-                ))}
             </div>
 
             <div className="pb-6" />

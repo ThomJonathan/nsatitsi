@@ -40,6 +40,7 @@ const LEVELS = [
 
 const PRIMARY_SUBJECTS = [
     { value: "english", label: "English", emoji: "\uD83D\uDCD6" },
+    {value:"chichewa", label: "Chichewa", emoji: "\uD83D\uDC41"},
     { value: "mathematics", label: "Mathematics", emoji: "\uD83D\uDD22" },
     { value: "social-environmental-studies", label: "Social and Environmental Studies", emoji: "\uD83C\uDF10" },
     { value: "science-technology", label: "Science and Technology", emoji: "\uD83D\uDD2C" },
@@ -51,7 +52,10 @@ const PRIMARY_SUBJECTS = [
 
 const SECONDARY_SUBJECTS = [
     { value: "english", label: "English", emoji: "\uD83D\uDCD6" },
+    {value:"chichewa", label: "Chichewa", emoji: "\uD83D\uDC41"},
     { value: "mathematics", label: "Mathematics", emoji: "\uD83D\uDD22" },
+    {value:"french", label: "French", emoji: "\uD83C\uDDE9\uD83C\uDDF3"},
+    {value: "additional-mathematics", label: "Additional Mathematics", emoji: "\uD83D\uDD23"},
     { value: "biology", label: "Biology", emoji: "\uD83E\uDDEC" },
     { value: "chemistry", label: "Chemistry", emoji: "\u2697\uFE0F" },
     { value: "physics", label: "Physics", emoji: "\u26A1" },
