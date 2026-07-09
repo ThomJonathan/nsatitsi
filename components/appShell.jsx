@@ -47,8 +47,8 @@ export default function AppShell({
                 footerItem={isAdmin ? { title: 'Settings', icon: Settings, href: '/admin/settings' } : undefined}
             />
 
-            <div className="flex-1 flex flex-col">
-                {!isAdmin && <MobileHeader initials="TB" hasNotification />}
+            <div className="flex-1 flex flex-col md:pl-80">
+                <MobileHeader initials="TB" hasNotification />
                 <main className="flex-1 pb-28 md:pb-8">{children}</main>
             </div>
 

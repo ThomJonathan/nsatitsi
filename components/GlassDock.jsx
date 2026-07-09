@@ -9,7 +9,7 @@ export default function GlassDock({ items = [] }) {
     return (
         <nav
             aria-label="Quick navigation"
-            className="w-full border-t border-black/5 bg-white px-3 py-2 shadow-sm"
+            className="w-full border-t border-black/5 bg-white/95 px-3 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-md"
         >
             <ul className="flex items-center justify-around">
                 {items.map((item) => {
@@ -29,11 +29,11 @@ export default function GlassDock({ items = [] }) {
                                 className={`flex flex-col items-center gap-1 py-1 transition ${
                                     isActive
                                         ? 'text-[#1B4D2E]'
-                                        : 'text-[#9a9a90] hover:text-[#161613]'
+                                        : 'text-[#8a8a80] hover:text-[#161613]'
                                 }`}
                             >
                                 {Icon ? <Icon className="h-5 w-5" strokeWidth={2} /> : null}
-                                <span className="text-[11px] leading-none">{item.title}</span>
+                                <span className="text-[11px] leading-none font-medium">{item.title}</span>
                             </Link>
                         </li>
                     );
@@ -42,4 +42,3 @@ export default function GlassDock({ items = [] }) {
         </nav>
     );
 }
-

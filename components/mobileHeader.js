@@ -1,8 +1,16 @@
 "use client";
 
-import { Bell } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function MobileHeader({ initials = 'TB', hasNotification = false }) {
+    const router = useRouter();
+
+    const handleLogout = () => {
+        // Add logout logic here if needed
+        router.push('/login');
+    };
+
     return (
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-black/5 sticky top-0 z-40">
             <div className="flex items-center gap-2">
@@ -21,6 +29,13 @@ export default function MobileHeader({ initials = 'TB', hasNotification = false 
                 <div className="w-8 h-8 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center justify-center">
                     {initials}
                 </div>
+                <button 
+                    onClick={handleLogout}
+                    className="p-1.5 text-[#4b4b43] hover:text-[#b91c1c] transition"
+                    aria-label="Logout"
+                >
+                    <LogOut className="w-5 h-5" />
+                </button>
             </div>
         </header>
     );
