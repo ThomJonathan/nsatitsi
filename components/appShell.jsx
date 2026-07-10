@@ -27,10 +27,7 @@ export default function AppShell({
                                      variant,
                                      activeTitle,
                                      level = 'Form 3 — Senior Secondary',
-                                     stats = [
-                                         { label: 'Users', value: '4.2K' },
-                                         { label: 'Materials', value: '1.8K' },
-                                     ],
+
                                  }) {
     const isAdmin = variant === 'admin';
     const items = isAdmin ? adminNav : studentNav;
@@ -43,7 +40,6 @@ export default function AppShell({
                 activeTitle={activeTitle}
                 badge={isAdmin ? 'ADMIN' : undefined}
                 level={!isAdmin ? level : undefined}
-                stats={isAdmin ? stats : undefined}
                 footerItem={isAdmin ? { title: 'Settings', icon: Settings, href: '/admin/settings' } : undefined}
             />
 

@@ -42,6 +42,13 @@ export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school
     const [materialsError, setMaterialsError] = useState('');
     const [downloadProgress, setDownloadProgress] = useState(null);
 
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Mwadzuka bwanji?';
+        if (hour < 18) return 'Mwaswera bwanji?';
+        return 'Madzuro abwino';
+    };
+
     const isPrimary = form.toLowerCase().includes('standard');
     const subjects = isPrimary ? PRIMARY_SUBJECTS : SECONDARY_SUBJECTS;
     const levelLabel = isPrimary ? 'Primary School' : (form.includes('1') || form.includes('2') ? 'Junior Secondary' : 'Senior Secondary');
@@ -135,31 +142,34 @@ export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school
 
     return (
         <div className="px-4 md:px-10 py-5 md:py-8 max-w-6xl">
-            {/* Greeting + bell (bell here is desktop-only; mobile bell lives in MobileHeader) */}
-            <div className="flex items-start justify-between mb-5">
-                <div>
-                    <p className="text-[#9a9a90] text-sm md:text-base">Good morning,</p>
-                    <h1 className="text-2xl md:text-3xl font-bold text-[#161613] flex items-center gap-2">
-                        {name} <span>👋</span>
-                    </h1>
-                    <p className="text-[#6b6b63] text-sm md:text-base mt-1">
-                        {form} · {school}
-                    </p>
+            {/* Sticky header */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-20 pb-5 -mx-4 md:-mx-10 px-4 md:px-10 mb-2">
+                {/* Greeting + bell (bell here is desktop-only; mobile bell lives in MobileHeader) */}
+                <div className="flex items-start justify-between mb-5">
+                    <div>
+                        <p className="text-[#9a9a90] text-xs md:text-sm">{getGreeting()}</p>
+                        <h1 className="text-lg md:text-2xl font-bold text-[#161613] flex items-center gap-2">
+                            {name} <span>👋</span>
+                        </h1>
+                        <p className="text-[#6b6b63] text-xs md:text-sm mt-1">
+                            {form} · {school}
+                        </p>
+                    </div>
+                    <button className="hidden md:flex relative w-10 h-10 rounded-full bg-white border border-black/5 items-center justify-center" aria-label="Notifications">
+                        <Bell className="w-5 h-5 text-[#4b4b43]" />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-green-500" />
+                    </button>
                 </div>
-                <button className="hidden md:flex relative w-10 h-10 rounded-full bg-white border border-black/5 items-center justify-center" aria-label="Notifications">
-                    <Bell className="w-5 h-5 text-[#4b4b43]" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-green-500" />
-                </button>
-            </div>
 
-            {/* Search */}
-            <div className="relative mb-5">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b4b43]" />
-                <input
-                    type="text"
-                    placeholder="Search books, past papers, subjects..."
-                    className="w-full bg-white border border-black/15 rounded-2xl pl-11 pr-4 py-3.5 text-sm placeholder:text-[#6b6b63] text-[#161613] focus:outline-none focus:ring-2 focus:ring-[#1B4D2E]/30"
-                />
+                {/* Search */}
+                <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4b4b43]" />
+                    <input
+                        type="text"
+                        placeholder="Search books, past papers, subjects..."
+                        className="w-full bg-white border border-black/15 rounded-2xl pl-11 pr-4 py-2 md:py-3.5 text-sm placeholder:text-[#6b6b63] text-[#161613] focus:outline-none focus:ring-2 focus:ring-[#1B4D2E]/30"
+                    />
+                </div>
             </div>
 
             {/* Stats */}
@@ -293,13 +303,13 @@ export default function StudentHome({ name = 'Thandizo', form = 'Form 3', school
 
 function StatCard({ icon: Icon, value, label, iconBg, iconColor }) {
     return (
-        <div className="bg-white border border-black/15 rounded-2xl px-2 py-3 md:px-5 md:py-5 flex flex-col gap-1.5 md:gap-2">
-            <span className={`w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center ${iconBg}`}>
-                <Icon className={`w-3.5 h-3.5 md:w-4 h-4 ${iconColor}`} />
+        <div className="bg-white border border-black/15 rounded-lg px-2 py-2 md:px-5 md:py-5 flex flex-col gap-0.5 md:gap-2">
+            <span className={`w-5 h-5 md:w-9 md:h-9 rounded-full flex items-center justify-center ${iconBg}`}>
+                <Icon className={`w-2.5 h-2.5 md:w-4 h-4 ${iconColor}`} />
             </span>
             <div>
-                <p className="text-lg md:text-2xl font-bold text-[#161613]">{value}</p>
-                <p className="text-[10px] md:text-sm text-[#9a9a90] leading-tight">{label}</p>
+                <p className="text-[11px] md:text-2xl font-bold text-[#161613]">{value}</p>
+                <p className="text-[9px] md:text-sm text-[#9a9a90] leading-tight">{label}</p>
             </div>
         </div>
     );
