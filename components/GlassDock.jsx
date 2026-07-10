@@ -1,44 +1,75 @@
-"use client";
+'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
-export default function GlassDock({ items = [] }) {
+const GlassDock = React.forwardRef(function GlassDock(
+    { items = [], className, dockClassName, ...props },
+    ref
+) {
     const pathname = usePathname();
 
+    const isActiveItem = (item) => {
+        if (!item.href) return false;
+        if (pathname === item.href) return true;
+        const isBaseRoute = item.href === '/admin' || item.href === '/student';
+        if (isBaseRoute) return pathname === item.href;
+        return item.href !== '/' && pathname.startsWith(item.href + '/');
+    };
+
     return (
-        <nav
-            aria-label="Quick navigation"
-            className="w-full border-t border-black/5 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-md"
-        >
-            <ul className="flex items-center justify-around">
+        <div ref={ref} className={cn('w-full flex justify-center px-6 pb-4', className)} {...props}>
+            <nav
+                aria-label="Quick navigation"
+                className={cn(
+                    'flex items-center justify-center gap-2 bg-[#22281F] rounded-full px-3 py-1.5 shadow-lg',
+                    dockClassName
+                )}
+            >
                 {items.map((item) => {
                     const Icon = item.icon;
-                    const isActive = (() => {
-                        if (pathname === item.href) return true;
-                        const isBaseRoute = item.href === '/admin' || item.href === '/student';
-                        if (isBaseRoute) return pathname === item.href;
-                        return item.href !== '/' && pathname.startsWith(item.href + '/');
-                    })();
+                    const active = isActiveItem(item);
+
+                    const content = (
+                        <div
+                            className={cn(
+                                'flex flex-col items-center gap-0.5 px-3.5 py-1 rounded-full transition',
+                                active ? 'bg-[#1B4D2E] text-white' : 'text-[#9CA3AF] hover:text-white'
+                            )}
+                        >
+                            {Icon ? <Icon className="h-4 w-4" strokeWidth={1.5} /> : null}
+                            <span className="text-[9px] leading-none font-medium">{item.title}</span>
+                        </div>
+                    );
+
+                    if (item.href) {
+                        return (
+                            <Link
+                                key={item.title}
+                                href={item.href}
+                                aria-current={active ? 'page' : undefined}
+                            >
+                                {content}
+                            </Link>
+                        );
+                    }
 
                     return (
-                        <li key={item.href} className="flex-1">
-                            <Link
-                                href={item.href}
-                                aria-current={isActive ? 'page' : undefined}
-                                className={`flex flex-col items-center gap-1.5 py-1 transition ${
-                                    isActive
-                                        ? 'text-[#1B4D2E]'
-                                        : 'text-[#8a8a80] hover:text-[#161613]'
-                                }`}
-                            >
-                                {Icon ? <Icon className="h-6 w-6" strokeWidth={1.5} /> : null}
-                                <span className="text-[12px] leading-none font-normal">{item.title}</span>
-                            </Link>
-                        </li>
+                        <button
+                            key={item.title}
+                            type="button"
+                            onClick={item.onClick}
+                        >
+                            {content}
+                        </button>
                     );
                 })}
-            </ul>
-        </nav>
+            </nav>
+        </div>
     );
-}
+});
+
+GlassDock.displayName = 'GlassDock';
+export default GlassDock;
