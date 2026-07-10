@@ -43,9 +43,13 @@ export default function AppShell({
                 footerItem={isAdmin ? { title: 'Settings', icon: Settings, href: '/admin/settings' } : undefined}
             />
 
-            <div className="flex-1 flex flex-col md:pl-80 h-full min-h-0 relative">
+            <div className="flex-1 flex flex-col md:pl-72 lg:pl-80 min-h-screen relative">
                 <MobileHeader initials="TB" hasNotification />
-                <main className="flex-1 overflow-y-auto pb-28 md:pb-8">{children}</main>
+                <main className="flex-1 overflow-y-auto pb-28 md:pb-8">
+                    <div className="min-h-full">
+                        {children}
+                    </div>
+                </main>
             </div>
 
             <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
@@ -56,5 +60,5 @@ export default function AppShell({
 }
 
 function cnBg(isAdmin) {
-    return `flex h-screen overflow-hidden ${isAdmin ? 'bg-[#f8f9f8]' : 'bg-white'}`;
+    return `flex min-h-screen ${isAdmin ? 'bg-[#f8f9f8]' : 'bg-white'}`;
 }

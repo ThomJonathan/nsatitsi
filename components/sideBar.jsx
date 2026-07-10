@@ -38,7 +38,7 @@ const handleLogout = () => {
     };
 
     return (
-        <aside className="hidden md:flex md:w-80 md:flex-col md:justify-between md:px-6 md:py-8 border-r border-white/10 bg-gradient-to-b from-[#1B4D2E] via-[#184427] to-[#143821] text-white md:fixed md:top-0 md:bottom-0 md:left-0 z-30 shadow-[0_0_40px_rgba(27,77,46,0.18)]">
+        <aside className="hidden md:flex md:w-72 lg:w-80 md:flex-col md:justify-between md:px-6 md:py-8 border-r border-white/10 bg-gradient-to-b from-[#1B4D2E] via-[#184427] to-[#143821] text-white md:fixed md:top-0 md:bottom-0 md:left-0 z-30 shadow-[0_0_40px_rgba(27,77,46,0.18)]">
             <div className="space-y-6">
                 <div className="space-y-3">
                     <div className="flex items-center gap-3">
